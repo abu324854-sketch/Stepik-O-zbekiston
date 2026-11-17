@@ -2,7 +2,7 @@
 
 
 HTML belgisi
-stepik_uzbekiston
+stepik_uzbekiston_toliq
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -12,28 +12,26 @@ stepik_uzbekiston
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f6f7f9;
             color: #222;
         }
-        .code-font {
-            font-family: 'Fira Code', monospace;
-        }
+        .code-font { font-family: 'Fira Code', monospace; }
         .stepik-dark { background-color: #222222; }
         .stepik-green { background-color: #54ad54; }
         .stepik-green:hover { background-color: #469646; }
         .stepik-green-text { color: #54ad54; }
 
         .step-box {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
@@ -42,9 +40,7 @@ stepik_uzbekiston
             background: white;
             color: #4b5563;
         }
-        .step-box:hover {
-            border-color: #54ad54;
-        }
+        .step-box:hover { border-color: #54ad54; }
         .step-box.active {
             border: 2px solid #222;
             font-weight: 700;
@@ -70,13 +66,14 @@ stepik_uzbekiston
     <header class="stepik-dark text-white h-14 flex items-center justify-between px-4 shrink-0 z-30 shadow-md">
         <div class="flex items-center space-x-6">
             <div class="flex items-center space-x-2 cursor-pointer" onclick="switchView('catalog')">
-                <div class="w-8 h-8 stepik-green rounded flex items-center justify-center font-bold text-lg text-white">S</div>
-                <span class="font-bold text-xl tracking-tight">stepik <span class="text-xs font-normal text-green-400 border border-green-500 px-1.5 py-0.5 rounded ml-1">UZ</span></span>
+                <div class="w-8 h-8 stepik-green rounded flex items-center justify-center font-extrabold text-lg text-white">S</div>
+                <span class="font-bold text-xl tracking-tight">stepik <span class="text-[11px] font-semibold text-green-400 border border-green-500 px-1.5 py-0.5 rounded ml-1">UZ</span></span>
             </div>
 
             <nav class="hidden md:flex space-x-5 text-sm font-medium text-gray-300">
                 <button onclick="switchView('catalog')" id="nav-catalog" class="hover:text-white transition py-1">Katalog</button>
                 <button onclick="switchView('learning')" id="nav-learning" class="text-white border-b-2 border-green-500 py-1">Mening o'qishim</button>
+                <button onclick="switchView('leaderboard')" id="nav-leaderboard" class="hover:text-white transition py-1">Peshqadamlar</button>
                 <button onclick="switchView('studio')" id="nav-studio" class="hover:text-white transition py-1 flex items-center gap-1">
                     <i class="fas fa-plus-circle text-green-400"></i> Dars yaratish (Studio)
                 </button>
@@ -85,55 +82,58 @@ stepik_uzbekiston
 
         <div class="flex items-center space-x-4 text-sm">
             <div class="relative hidden lg:block">
-                <input type="text" id="catalog-search" onkeyup="filterCatalog()" placeholder="Kurslarni qidirish..." class="bg-gray-800 text-gray-200 text-xs rounded-md pl-8 pr-3 py-1.5 w-56 focus:outline-none focus:ring-1 focus:ring-green-500">
+                <input type="text" id="catalog-search" onkeyup="filterCatalog()" placeholder="Kurs yoki mavzu qidirish..." class="bg-gray-800 text-gray-200 text-xs rounded-md pl-8 pr-3 py-1.5 w-60 focus:outline-none focus:ring-1 focus:ring-green-500">
                 <i class="fas fa-search absolute left-2.5 top-2 text-gray-400 text-xs"></i>
             </div>
 
             <div class="flex items-center space-x-1 bg-gray-800 px-2.5 py-1 rounded text-orange-400 font-semibold" title="Kundalik uzluksiz faollik">
                 <i class="fas fa-fire"></i>
-                <span id="user-streak">7 kun</span>
+                <span id="user-streak">12 kun</span>
             </div>
 
             <div class="flex items-center space-x-1 bg-gray-800 px-2.5 py-1 rounded text-green-400 font-semibold" title="To'plangan ballar">
                 <i class="fas fa-bolt"></i>
-                <span id="user-score">150</span>
+                <span id="user-score">240</span>
             </div>
 
-            <div class="flex items-center space-x-2 cursor-pointer pl-2 border-l border-gray-700">
+            <div onclick="openProfileModal()" class="flex items-center space-x-2 cursor-pointer pl-2 border-l border-gray-700 hover:opacity-90">
                 <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center font-bold text-xs">FA</div>
                 <span class="hidden sm:inline text-xs font-medium text-gray-200">Abdulloh</span>
             </div>
         </div>
     </header>
 
-    <!-- ASOSIY O'QISH OYNASI (LEARNING VIEW) -->
+    <!-- 1. ASOSIY O'QISH OYNASI (LEARNING VIEW) -->
     <div id="view-learning" class="flex-1 flex overflow-hidden">
         
         <!-- CHAP SIDEBAR: KURS MUNDARIJASI -->
-        <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex flex-col shrink-0 transition-all duration-200">
+        <aside id="sidebar" class="w-80 bg-white border-r border-gray-200 flex flex-col shrink-0 transition-all duration-200">
             <div class="p-4 border-b border-gray-200 bg-gray-50">
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs text-gray-500 uppercase font-semibold tracking-wider">Faol Kurs</span>
-                    <button onclick="switchView('catalog')" class="text-[11px] text-green-600 hover:underline font-medium">Almashtirish</button>
+                    <span class="text-[11px] text-gray-500 uppercase font-bold tracking-wider">Faol Kurs</span>
+                    <button onclick="switchView('catalog')" class="text-xs text-green-600 hover:underline font-semibold">Barcha kurslar &rarr;</button>
                 </div>
                 <h2 id="sidebar-course-title" class="font-bold text-gray-800 text-sm leading-snug"></h2>
                 
                 <div class="mt-3">
                     <div class="flex justify-between text-xs text-gray-600 mb-1">
-                        <span>O'zlashtirish</span>
-                        <span id="course-progress-text" class="font-semibold">0%</span>
+                        <span>Kurs o'zlashtirilishi</span>
+                        <span id="course-progress-text" class="font-bold text-green-700">0%</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div id="course-progress-bar" class="stepik-green h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="course-progress-bar" class="stepik-green h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="syllabus-container" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
+            <div id="syllabus-container" class="flex-1 overflow-y-auto p-2 space-y-3"></div>
 
-            <div class="p-3 border-t border-gray-200 bg-gray-50">
-                <button onclick="openCertificateModal()" class="w-full py-2 px-3 bg-white border border-gray-300 hover:border-green-500 text-gray-700 rounded text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
-                    <i class="fas fa-award text-yellow-500 text-sm"></i> Sertifikatni ko'rish
+            <div class="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+                <button onclick="openCertificateModal()" class="flex-1 py-2 px-3 bg-white border border-gray-300 hover:border-green-500 text-gray-700 rounded text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-sm">
+                    <i class="fas fa-award text-yellow-500 text-sm"></i> Sertifikat
+                </button>
+                <button onclick="resetProgress()" class="py-2 px-2.5 bg-white border border-gray-300 hover:border-red-400 text-gray-500 hover:text-red-600 rounded text-xs transition" title="Progressni noldan boshlash">
+                    <i class="fas fa-rotate-right"></i>
                 </button>
             </div>
         </aside>
@@ -144,11 +144,11 @@ stepik_uzbekiston
             <!-- Qadamlar navigatsiya paneli -->
             <div class="border-b border-gray-200 px-6 py-3 bg-gray-50 flex flex-wrap items-center justify-between gap-4 shrink-0">
                 <div class="flex items-center space-x-3">
-                    <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-800 p-1.5 rounded hover:bg-gray-200" title="Menyuni yashirish/ochish">
+                    <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-800 p-1.5 rounded hover:bg-gray-200" title="Mundarijani yashirish/ochish">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div>
-                        <div id="current-module-name" class="text-xs text-gray-500"></div>
+                        <div id="current-module-name" class="text-xs text-gray-500 font-medium"></div>
                         <h1 id="current-lesson-title" class="font-bold text-gray-800 text-base"></h1>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ stepik_uzbekiston
                     
                     <div class="flex items-center justify-between mb-4">
                         <span id="step-type-badge" class="text-xs font-semibold px-2.5 py-1 rounded bg-gray-100 text-gray-600">Nazariya</span>
-                        <span id="step-points-badge" class="text-xs font-medium text-gray-500"></span>
+                        <span id="step-points-badge" class="text-xs font-semibold text-gray-500"></span>
                     </div>
 
                     <div id="step-content-area" class="prose max-w-none text-gray-800 leading-relaxed mb-8"></div>
@@ -173,7 +173,7 @@ stepik_uzbekiston
                         <button id="btn-prev-step" onclick="prevStep()" class="px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40">
                             <i class="fas fa-arrow-left mr-2"></i> Oldingi qadam
                         </button>
-                        <button id="btn-next-step" onclick="nextStep()" class="px-5 py-2 stepik-green text-white rounded text-sm font-medium shadow-sm transition">
+                        <button id="btn-next-step" onclick="nextStep()" class="px-5 py-2 stepik-green text-white rounded text-sm font-semibold shadow-sm transition">
                             Keyingi qadam <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
@@ -193,9 +193,9 @@ stepik_uzbekiston
                             <div class="flex gap-3 mb-6">
                                 <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold shrink-0">FA</div>
                                 <div class="flex-1">
-                                    <textarea id="new-comment-input" rows="2" placeholder="Savol bering yoki fikringizni qoldiring..." class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
+                                    <textarea id="new-comment-input" rows="2" placeholder="Savol bering yoki o'z fikringizni qoldiring..." class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
                                     <div class="flex justify-end mt-2">
-                                        <button onclick="addComment()" class="px-4 py-1.5 stepik-green text-white text-xs font-semibold rounded">Izoh qoldirish</button>
+                                        <button onclick="addComment()" class="px-4 py-1.5 stepik-green text-white text-xs font-semibold rounded">Izoh yuborish</button>
                                     </div>
                                 </div>
                             </div>
@@ -210,7 +210,7 @@ stepik_uzbekiston
                             </div>
                             <div id="solutions-unlocked-content" class="hidden space-y-4">
                                 <div class="bg-green-50 border border-green-200 p-3 rounded text-xs text-green-800">
-                                    <i class="fas fa-check-circle mr-1"></i> Siz masalani to'g'ri yechdingiz! Endi boshqa talabalarning eng yaxshi yechimlarini ko'rishingiz mumkin.
+                                    <i class="fas fa-check-circle mr-1"></i> Tabriklaymiz! Siz masalani to'g'ri yechdingiz. Quyida eng optimal yechim namunasini ko'rishingiz mumkin.
                                 </div>
                                 <div id="sample-solution-box" class="border border-gray-200 rounded p-4"></div>
                             </div>
@@ -222,35 +222,57 @@ stepik_uzbekiston
         </main>
     </div>
 
-    <!-- KATALOG KO'RINISHI (BARCHA KURSLAR RO'YXATI) -->
+    <!-- 2. KATALOG KO'RINISHI (BARCHA KURSLAR RO'YXATI) -->
     <div id="view-catalog" class="hidden flex-1 overflow-y-auto p-8 bg-gray-50">
         <div class="max-w-6xl mx-auto">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 mb-8 text-white flex flex-wrap items-center justify-between gap-4 shadow">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 mb-1">O'zbek tilidagi interaktiv kurslar katalogi</h1>
-                    <p class="text-sm text-gray-600">Barcha yo'nalishlar bo'yicha to'liq modullar, nazariya va avtomatik tekshiriladigan masalalar.</p>
+                    <span class="text-xs uppercase tracking-wider bg-green-600 px-2.5 py-1 rounded font-bold">Stepik O'zbekiston</span>
+                    <h1 class="text-2xl font-bold mt-2">O'zbek tilidagi to'liq interaktiv ta'lim platformasi</h1>
+                    <p class="text-sm text-gray-300 mt-1">Dasturlash, SQL, Algoritmlar, Veb-texnologiyalar, Matematika va Ingliz tili — barchasi avtomatik tekshiruv tizimi bilan.</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="filterCategory('all')" class="px-3 py-1.5 bg-gray-800 text-white rounded text-xs font-semibold">Barchasi</button>
+                <button onclick="switchView('learning')" class="px-5 py-2.5 stepik-green text-white rounded-lg text-sm font-bold shadow">
+                    O'qishga qaytish &rarr;
+                </button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h2 class="text-lg font-bold text-gray-900">Barcha yo'nalishlar bo'yicha kurslar</h2>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterCategory('all')" class="px-3 py-1.5 bg-gray-800 text-white rounded text-xs font-semibold">Barchasi (6)</button>
                     <button onclick="filterCategory('Dasturlash')" class="px-3 py-1.5 bg-white border border-gray-300 hover:border-green-500 rounded text-xs font-semibold">Dasturlash</button>
-                    <button onclick="filterCategory('Ma\'lumotlar bazasi')" class="px-3 py-1.5 bg-white border border-gray-300 hover:border-green-500 rounded text-xs font-semibold">SQL va Bazalar</button>
+                    <button onclick="filterCategory('Ma'lumotlar bazasi')" class="px-3 py-1.5 bg-white border border-gray-300 hover:border-green-500 rounded text-xs font-semibold">SQL va Bazalar</button>
                     <button onclick="filterCategory('Algoritmlar')" class="px-3 py-1.5 bg-white border border-gray-300 hover:border-green-500 rounded text-xs font-semibold">Algoritmlar</button>
+                    <button onclick="filterCategory('Veb-dasturlash')" class="px-3 py-1.5 bg-white border border-gray-300 hover:border-green-500 rounded text-xs font-semibold">Veb-dasturlash</button>
                     <button onclick="filterCategory('Matematika')" class="px-3 py-1.5 bg-white border border-gray-300 hover:border-green-500 rounded text-xs font-semibold">Matematika</button>
+                    <button onclick="filterCategory('Tillar')" class="px-3 py-1.5 bg-white border border-gray-300 hover:border-green-500 rounded text-xs font-semibold">Ingliz tili</button>
                 </div>
             </div>
 
-            <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- JS orqali barcha kurslar chiziladi -->
-            </div>
+            <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     </div>
 
-    <!-- STUDIO KO'RINISHI (O'QITUVCHILAR UCHUN YANGI DARS / MASALA QO'SHISH) -->
+    <!-- 3. PESHQADAMLAR JADVALI (LEADERBOARD) -->
+    <div id="view-leaderboard" class="hidden flex-1 overflow-y-auto p-8 bg-gray-50">
+        <div class="max-w-3xl mx-auto bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-200 bg-gray-900 text-white flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-bold">Stepik O'zbekiston — Peshqadamlar reytingi</h2>
+                    <p class="text-xs text-gray-400">Eng ko'p masala yechgan va ball to'plagan faol talabalar</p>
+                </div>
+                <i class="fas fa-trophy text-yellow-400 text-2xl"></i>
+            </div>
+            <div class="divide-y divide-gray-100" id="leaderboard-list"></div>
+        </div>
+    </div>
+
+    <!-- 4. STUDIO KO'RINISHI (O'QITUVCHILAR UCHUN YANGI DARS / MASALA QO'SHISH) -->
     <div id="view-studio" class="hidden flex-1 overflow-y-auto p-8 bg-gray-50">
         <div class="max-w-3xl mx-auto bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900">Stepik Studio — Yangi qadam (Step) qo'shish</h2>
+                    <h2 class="text-lg font-bold text-gray-900">Stepik Studio — Yangi qadam (Step) yaratish</h2>
                     <p class="text-xs text-gray-500">Joriy faol kursga yangi nazariya, test yoki kodlash masalasini qo'shing.</p>
                 </div>
                 <span class="text-xs bg-green-100 text-green-800 px-2.5 py-1 rounded font-semibold">Muallif rejimi</span>
@@ -324,27 +346,27 @@ stepik_uzbekiston
             <p class="text-xs text-gray-500 mb-2">Ushbu sertifikat tasdiqlaydiki,</p>
             <div class="text-xl font-bold text-gray-800 border-b border-gray-300 inline-block px-8 pb-1 mb-4">Fattoxov Abdulloh</div>
             <p class="text-xs text-gray-600 mb-6">
-                <strong id="cert-course-name">"Python dasturlash asoslari"</strong> kursining amaliy mashg'ulotlarini muvaffaqiyatli bajardi.
+                <strong id="cert-course-name">"Python dasturlash asoslari"</strong> kursining nazariy va amaliy mashg'ulotlarini muvaffaqiyatli bajardi.
             </p>
             <div class="flex justify-between items-center text-xs text-gray-500 pt-4 border-t border-gray-200">
-                <span>ID: UZ-STP-2026-9412</span>
-                <span>Joriy natija: <strong id="cert-progress-val" class="text-green-600">0%</strong></span>
+                <span>ID: UZ-STP-2026-9924</span>
+                <span>O'zlashtirish: <strong id="cert-progress-val" class="text-green-600">0%</strong></span>
                 <span>Sana: 2026-yil</span>
             </div>
         </div>
     </div>
 
-    <!-- TO'LIQ MA'LUMOTLAR BAZASI VA PLATFORMANING ASOSIY MANTIQI -->
+    <!-- JAVASCRIPT: STEPIK TO'LIQ MA'LUMOTLAR BAZASI VA MANTIQI -->
     <script>
-        const coursesDatabase = [
+        const defaultCourses = [
             {
                 id: "python-full",
                 category: "Dasturlash",
                 gradient: "from-green-600 to-emerald-700",
-                students: "18,420",
+                students: "24,810",
                 price: "Bepul",
                 title: "Python dasturlash asoslari: Noldan professionalgacha",
-                description: "O'zgaruvchilar, shart operatorlari, sikllar, ro'yxatlar va funksiyalar. 100% avtomatik tekshiriluvchi masalalar.",
+                description: "O'zgaruvchilar, shart operatorlari, sikllar, ro'yxatlar va funksiyalar. 100% avtomatik tekshiriluvchi amaliy masalalar.",
                 modules: [
                     {
                         id: 1,
@@ -362,9 +384,9 @@ stepik_uzbekiston
                                         completed: true,
                                         content: `
                                             <h2 class="text-xl font-bold mb-3">Python tilining imkoniyatlari</h2>
-                                            <p class="mb-3">Python — sintaksisi sodda, o'qishga oson va sun'iy intellekt, backend dasturlash hamda avtomatlashtirishda yetakchi dasturlash tili.</p>
+                                            <p class="mb-3">Python — sintaksisi sodda, o'qishga oson va sun'iy intellekt, veb-dasturlash hamda avtomatlashtirishda yetakchi dasturlash tili.</p>
                                             <div class="bg-gray-900 text-gray-100 p-4 rounded-md code-font text-sm mb-4">
-                                                <span class="text-blue-400">print</span>(<span class="text-green-400">"Assalomu alaykum, Stepik!"</span>)
+                                                <span class="text-blue-400">print</span>(<span class="text-green-400">"Assalomu alaykum, Stepik O'zbekiston!"</span>)
                                             </div>
                                             <p class="text-sm text-gray-700"><code>print()</code> funksiyasi qavs ichidagi matn yoki sonni ekranga chiqaradi.</p>
                                         `
@@ -419,7 +441,7 @@ print("")`,
                                     {
                                         id: 1005,
                                         type: "code",
-                                        title: "Masala: To'g'ri to'rtburchak yuzi va perimetri",
+                                        title: "Masala: To'g'ri to'rtburchak yuzi",
                                         points: 20,
                                         completed: false,
                                         content: `
@@ -549,7 +571,7 @@ print(n * (n + 1) // 2)`,
                 id: "sql-master",
                 category: "Ma'lumotlar bazasi",
                 gradient: "from-blue-600 to-indigo-700",
-                students: "11,340",
+                students: "14,190",
                 price: "Bepul",
                 title: "SQL va Relatsion Ma'lumotlar Bazasi",
                 description: "SELECT, WHERE, ORDER BY, GROUP BY va JOIN so'rovlarini amaliy masalalar orqali mukammal o'rganing.",
@@ -610,7 +632,7 @@ print(n * (n + 1) // 2)`,
                 id: "algorithms-pro",
                 category: "Algoritmlar",
                 gradient: "from-gray-800 to-gray-900",
-                students: "7,890",
+                students: "9,340",
                 price: "Sertifikatli",
                 title: "Algoritmlar va Ma'lumotlar Tuzilmasi",
                 description: "Big-O murakkablik tahlili, binar qidiruv, saralash algoritmlari, stek, navbat va graflar nazariyasi.",
@@ -656,10 +678,54 @@ print(n * (n + 1) // 2)`,
                 ]
             },
             {
+                id: "web-frontend",
+                category: "Veb-dasturlash",
+                gradient: "from-orange-500 to-red-600",
+                students: "15,720",
+                price: "Bepul",
+                title: "HTML5, CSS3 va Zamonaviy JavaScript",
+                description: "Veb-sahifalar yaratish, Flexbox, Grid, DOM bilan ishlash va interaktiv ilovalar qurish.",
+                modules: [
+                    {
+                        id: 1,
+                        title: "1-modul. HTML va CSS asoslari",
+                        lessons: [
+                            {
+                                id: 801,
+                                title: "1.1 HTML teglar va sahifa strukturasi",
+                                steps: [
+                                    {
+                                        id: 8001,
+                                        type: "theory",
+                                        title: "HTML hujjat tuzilishi",
+                                        points: 5,
+                                        completed: false,
+                                        content: `
+                                            <h2 class="text-xl font-bold mb-3">Veb-sahifa skeleti</h2>
+                                            <p class="mb-2">Har bir HTML sahifa <code>&lt;!DOCTYPE html&gt;</code> deklaratsiyasi bilan boshlanadi va asosiy kontent <code>&lt;body&gt;</code> tegi ichida joylashadi.</p>
+                                        `
+                                    },
+                                    {
+                                        id: 8002,
+                                        type: "quiz",
+                                        title: "Test: Eng katta sarlavha tegi",
+                                        points: 10,
+                                        completed: false,
+                                        question: "HTML tilida sahifadagi eng asosiy va eng katta sarlavhani belgilash uchun qaysi teg ishlatiladi?",
+                                        options: ["<head>", "<h6>", "<h1>", "<title>"],
+                                        correctIndex: 2
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
                 id: "discrete-math",
                 category: "Matematika",
                 gradient: "from-purple-600 to-violet-800",
-                students: "6,120",
+                students: "8,410",
                 price: "Bepul",
                 title: "Diskret Matematika va Mantiq",
                 description: "To'plamlar nazariyasi, mantiqiy amallar, kombinatorika va graflar nazariyasi asoslari.",
@@ -687,37 +753,96 @@ print(n * (n + 1) // 2)`,
                         ]
                     }
                 ]
+            },
+            {
+                id: "english-it",
+                category: "Tillar",
+                gradient: "from-teal-600 to-cyan-700",
+                students: "19,500",
+                price: "Bepul",
+                title: "IT mutaxassislari uchun Ingliz tili",
+                description: "Texnik hujjatlarni o'qish, xalqaro suhbatlardan o'tish va dasturlash terminologiyasi.",
+                modules: [
+                    {
+                        id: 1,
+                        title: "1-modul. Dasturlash terminlari (Vocabulary)",
+                        lessons: [
+                            {
+                                id: 901,
+                                title: "1.1 Asosiy texnik so'zlar",
+                                steps: [
+                                    {
+                                        id: 9001,
+                                        type: "quiz",
+                                        title: "Test: Texnik atama tarjimasi",
+                                        points: 10,
+                                        completed: false,
+                                        question: "Dasturlashda 'Variable' so'zining o'zbek tilidagi ma'nosi nima?",
+                                        options: ["O'zgarmas", "O'zgaruvchi", "Funksiya", "Massiv"],
+                                        correctIndex: 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             }
         ];
 
-        // HOLAT O'ZGARUVCHILARI
+        // LOCALSTORAGE ORQALI SAQLASH VA YUKLASH
+        let coursesDatabase = JSON.parse(localStorage.getItem('stepik_uz_courses')) || defaultCourses;
+        let userScore = parseInt(localStorage.getItem('stepik_uz_score')) || 240;
         let activeCourseIndex = 0;
         let currentLessonId = 101;
         let currentStepIndex = 0;
-        let userScore = 150;
+
         let commentsData = [
-            { author: "Sardorbek_Dev", time: "1 soat oldin", text: "Barcha kurslar va avtomatik tekshiruv tizimi xuddi haqiqiy Stepikdek ishlayapti!" },
-            { author: "Nilufar_K", time: "3 soat oldin", text: "SQL va Algoritmlar kurslari ham qo'shilgani juda zo'r bo'libdi." }
+            { author: "Sardorbek_Dev", time: "45 daqiqa oldin", text: "Barcha 6 ta yo'nalish bo'yicha kurslar va avtomatik tekshiruv tizimi a'lo darajada ishlayapti!" },
+            { author: "Malika_T", time: "2 soat oldin", text: "Progress brauzerda saqlanib qolishi juda qulay ekan, sahifani yangilasam ham ballarim o'chmadi." }
         ];
 
+        const leaderboardUsers = [
+            { name: "Fattoxov Abdulloh (Siz)", score: userScore, solved: 18, badge: "Oltin liga" },
+            { name: "Jasurbek_Coder", score: 490, solved: 34, badge: "Olmos liga" },
+            { name: "Madina_Alieva", score: 415, solved: 29, badge: "Olmos liga" },
+            { name: "Otabek_SQL", score: 310, solved: 22, badge: "Oltin liga" },
+            { name: "Ziyoda_Dev", score: 195, solved: 14, badge: "Kumush liga" }
+        ];
+
+        function saveState() {
+            localStorage.setItem('stepik_uz_courses', JSON.stringify(coursesDatabase));
+            localStorage.setItem('stepik_uz_score', userScore.toString());
+        }
+
+        function resetProgress() {
+            if (confirm("Barcha kurslardagi natijalaringizni noldan boshlashni xohlaysizmi?")) {
+                localStorage.removeItem('stepik_uz_courses');
+                localStorage.removeItem('stepik_uz_score');
+                location.reload();
+            }
+        }
+
         window.onload = () => {
+            document.getElementById('user-score').innerText = userScore;
             renderCatalog(coursesDatabase);
+            renderLeaderboard();
             selectCourse(0);
             renderComments();
         };
 
-        // KATALOGNI CHIZISH VA FILTRLASH
+        // KATALOGNI CHIZISH
         function renderCatalog(list) {
             const grid = document.getElementById('catalog-grid');
-            grid.innerHTML = list.map((course, idx) => {
+            grid.innerHTML = list.map((course) => {
                 const realIdx = coursesDatabase.findIndex(c => c.id === course.id);
                 const totalSteps = course.modules.reduce((acc, m) => acc + m.lessons.reduce((a, l) => a + l.steps.length, 0), 0);
+                const doneSteps = course.modules.reduce((acc, m) => acc + m.lessons.reduce((a, l) => a + l.steps.filter(s => s.completed).length, 0), 0);
                 return `
                     <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
                         <div class="h-32 bg-gradient-to-r ${course.gradient} p-5 text-white flex flex-col justify-between">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs uppercase tracking-wider bg-black/25 px-2 py-0.5 rounded">${course.category}</span>
-                                <span class="text-xs bg-white/20 px-2 py-0.5 rounded">${totalSteps} ta qadam</span>
+                                <span class="text-xs uppercase tracking-wider bg-black/25 px-2 py-0.5 rounded font-semibold">${course.category}</span>
+                                <span class="text-xs bg-white/20 px-2 py-0.5 rounded">${doneSteps}/${totalSteps} qadam</span>
                             </div>
                             <h3 class="font-bold text-lg leading-snug">${course.title}</h3>
                         </div>
@@ -729,7 +854,7 @@ print(n * (n + 1) // 2)`,
                                     <span class="text-green-600 font-bold">${course.price}</span>
                                 </div>
                                 <button onclick="openCourseFromCatalog(${realIdx})" class="w-full py-2 stepik-green text-white rounded text-xs font-semibold shadow-sm">
-                                    Kursni boshlash
+                                    ${doneSteps > 0 ? "O'qishni davom ettirish" : "Kursni boshlash"}
                                 </button>
                             </div>
                         </div>
@@ -872,13 +997,12 @@ print(n * (n + 1) // 2)`,
             pointsBadge.innerHTML = `<i class="fas fa-star text-yellow-400 mr-1"></i> ${step.points} ball`;
             interactiveArea.innerHTML = '';
 
-            // Yechimlar forumi namunasi
             const sampleBox = document.getElementById('sample-solution-box');
             if (step.sampleSolution) {
                 sampleBox.innerHTML = `
                     <div class="flex justify-between text-xs text-gray-500 mb-2">
                         <span class="font-bold text-gray-700">Sardorbek_Dev</span>
-                        <span>Eng optimal yechim • +48 ovoz</span>
+                        <span>Eng optimal yechim • +64 ovoz</span>
                     </div>
                     <pre class="bg-gray-900 text-green-400 p-3 rounded text-xs code-font overflow-x-auto">${step.sampleSolution}</pre>
                 `;
@@ -895,6 +1019,7 @@ print(n * (n + 1) // 2)`,
                 
                 if (!step.completed) {
                     step.completed = true;
+                    saveState();
                     renderSyllabus();
                     renderStepsBar(getCurrentLesson().lesson.steps);
                 }
@@ -915,7 +1040,7 @@ print(n * (n + 1) // 2)`,
                 });
                 optionsHtml += `
                     <div class="pt-3 flex items-center justify-between">
-                        <button onclick="checkQuizAnswer()" class="px-5 py-2 stepik-green text-white text-sm font-semibold rounded shadow-sm">Yuborish</button>
+                        <button onclick="checkQuizAnswer()" class="px-5 py-2 stepik-green text-white text-sm font-semibold rounded shadow-sm">Javobni yuborish</button>
                         <div id="quiz-feedback" class="text-sm font-semibold"></div>
                     </div>
                 </div>`;
@@ -979,7 +1104,8 @@ print(n * (n + 1) // 2)`,
 
         // PYTHON KODNI BAJARISH DVIGATELI
         function executePythonLogic(code, inputStr) {
-            const inputs = inputStr ? inputStr.split('\n') : [];
+            const inputs = inputStr ? inputStr.split('
+') : [];
             let inputIdx = 0;
             let outputs = [];
 
@@ -987,7 +1113,8 @@ print(n * (n + 1) // 2)`,
             const mockPrint = (...args) => outputs.push(args.join(' '));
 
             try {
-                let lines = code.split('\n');
+                let lines = code.split('
+');
                 let jsCode = "";
                 let indentLevel = 0;
 
@@ -997,7 +1124,8 @@ print(n * (n + 1) // 2)`,
 
                     let currentIndent = rawLine.search(/\S/);
                     while (currentIndent < indentLevel) {
-                        jsCode += "}\n";
+                        jsCode += "}
+";
                         indentLevel -= 4;
                     }
 
@@ -1008,15 +1136,18 @@ print(n * (n + 1) // 2)`,
                         .replace(/^print\((.*)\)$/, 'mockPrint($1)');
 
                     if (line.startsWith('if ') && line.endsWith(':')) {
-                        let cond = line.slice(3, -1).replace(/==/g, '===').replace(/\band\b/g, '&&').replace(/\bor\b/g, '||');
-                        jsCode += `if (${cond}) {\n`;
+                        let cond = line.slice(3, -1).replace(/==/g, '===').replace(/ and /g, '&&').replace(/ or /g, '||');
+                        jsCode += `if (${cond}) {
+`;
                         indentLevel += 4;
                     } else if (line.startsWith('elif ') && line.endsWith(':')) {
                         let cond = line.slice(5, -1).replace(/==/g, '===');
-                        jsCode += `} else if (${cond}) {\n`;
+                        jsCode += `} else if (${cond}) {
+`;
                         indentLevel += 4;
                     } else if (line === 'else:') {
-                        jsCode += `} else {\n`;
+                        jsCode += `} else {
+`;
                         indentLevel += 4;
                     } else if (line.startsWith('for ') && line.includes(' in range(')) {
                         const match = line.match(/for\s+(\w+)\s+in\s+range\((.+)\):/);
@@ -1024,26 +1155,32 @@ print(n * (n + 1) // 2)`,
                             const v = match[1];
                             const args = match[2].split(',').map(s => s.trim());
                             if (args.length === 1) {
-                                jsCode += `for (let ${v} = 0; ${v} < ${args[0]}; ${v}++) {\n`;
+                                jsCode += `for (let ${v} = 0; ${v} < ${args[0]}; ${v}++) {
+`;
                             } else {
-                                jsCode += `for (let ${v} = ${args[0]}; ${v} < ${args[1]}; ${v}++) {\n`;
+                                jsCode += `for (let ${v} = ${args[0]}; ${v} < ${args[1]}; ${v}++) {
+`;
                             }
                             indentLevel += 4;
                         }
                     } else if (line.includes('+=')) {
-                        jsCode += `${line};\n`;
+                        jsCode += `${line};
+`;
                     } else {
-                        jsCode += `var ${line};\n`.replace(/^var (mockPrint|if|else|for|\})/, '$1');
+                        jsCode += `var ${line};
+`.replace(/^var (mockPrint|if|else|for|\})/, '$1');
                     }
                 }
                 while (indentLevel > 0) {
-                    jsCode += "}\n";
+                    jsCode += "}
+";
                     indentLevel -= 4;
                 }
 
                 const runner = new Function('mockInput', 'mockPrint', jsCode);
                 runner(mockInput, mockPrint);
-                return { success: true, output: outputs.join('\n').trim() };
+                return { success: true, output: outputs.join('
+').trim() };
             } catch (err) {
                 return { success: false, error: "Sintaksis yoki bajarish xatosi: " + err.message };
             }
@@ -1104,7 +1241,8 @@ print(n * (n + 1) // 2)`,
                     outDiv.innerHTML = `
                         <div class="font-bold mb-1"><i class="fas fa-times-circle mr-1"></i> #${i + 1}-testdan o'ta olmadi</div>
                         <div class="text-xs space-y-1 code-font mt-2">
-                            <div><strong>Kirish:</strong> ${t.input.replace(/\n/g, ' ') || "(bo'sh)"}</div>
+                            <div><strong>Kirish:</strong> ${t.input.replace(/
+/g, ' ') || "(bo'sh)"}</div>
                             <div><strong>Sizning natijangiz:</strong> <span class="text-red-600">${res.output || "(bo'sh)"}</span></div>
                             <div><strong>Kutilgan natija:</strong> <span class="text-green-700">${t.expected}</span></div>
                         </div>
@@ -1135,10 +1273,31 @@ print(n * (n + 1) // 2)`,
                 step.completed = true;
                 userScore += step.points;
                 document.getElementById('user-score').innerText = userScore;
+                leaderboardUsers[0].score = userScore;
+                leaderboardUsers[0].solved += 1;
+                renderLeaderboard();
             }
+            saveState();
             updateSolutionsLock(true);
             renderSyllabus();
             renderStepsBar(getCurrentLesson().lesson.steps);
+        }
+
+        function renderLeaderboard() {
+            const sorted = [...leaderboardUsers].sort((a, b) => b.score - a.score);
+            document.getElementById('leaderboard-list').innerHTML = sorted.map((u, idx) => `
+                <div class="p-4 flex items-center justify-between ${u.name.includes('(Siz)') ? 'bg-green-50' : ''}">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 text-center font-bold ${idx === 0 ? 'text-yellow-500 text-base' : 'text-gray-400 text-sm'}">#${idx + 1}</span>
+                        <div class="w-9 h-9 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs font-bold">${u.name.slice(0, 2).toUpperCase()}</div>
+                        <div>
+                            <div class="text-sm font-bold text-gray-800">${u.name}</div>
+                            <div class="text-xs text-gray-500">${u.solved} ta masala yechilgan • <span class="text-green-600 font-medium">${u.badge}</span></div>
+                        </div>
+                    </div>
+                    <div class="text-sm font-extrabold text-green-600"><i class="fas fa-bolt mr-1"></i>${u.score} ball</div>
+                </div>
+            `).join('');
         }
 
         function nextStep() {
@@ -1164,7 +1323,7 @@ print(n * (n + 1) // 2)`,
         }
 
         function switchView(viewName) {
-            ['learning', 'catalog', 'studio'].forEach(v => {
+            ['learning', 'catalog', 'studio', 'leaderboard'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 const navBtn = document.getElementById(`nav-${v}`);
                 if (navBtn) navBtn.classList.remove('text-white', 'border-b-2', 'border-green-500');
@@ -1172,6 +1331,7 @@ print(n * (n + 1) // 2)`,
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${viewName}`);
             if (activeNav) activeNav.classList.add('text-white', 'border-b-2', 'border-green-500');
+            if (viewName === 'catalog') renderCatalog(coursesDatabase);
         }
 
         function switchTab(tab) {
@@ -1276,6 +1436,7 @@ print(n * (n + 1) // 2)`,
             }
 
             lesson.steps.push(newStep);
+            saveState();
             switchView('learning');
             loadLesson(lesson.id, lesson.steps.length - 1);
         }
@@ -1286,7 +1447,10 @@ print(n * (n + 1) // 2)`,
         function closeCertificateModal() {
             document.getElementById('certificate-modal').classList.add('hidden');
         }
+        function openProfileModal() {
+            switchView('leaderboard');
+        }
     </script>
 </body>
 </html>
-Выполняю анализ
+Обработано и проанализировано в коде
