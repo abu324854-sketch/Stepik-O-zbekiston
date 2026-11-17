@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stepik O'zbekiston — Interaktiv Ta'lim Platformasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f6f7f9;
+            color: #222;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Stepik Signature Colors */
+        .stepik-dark { background-color: #222222; }
+        .stepik-green { background-color: #54ad54; }
+        .stepik-green:hover { background-color: #469646; }
+        .stepik-green-text { color: #54ad54; }
+        .stepik-border-green { border-color: #54ad54; }
+
+        /* Step Navigation Squares */
+        .step-box {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #4b5563;
+        }
+        .step-box:hover {
+            border-color: #54ad54;
+        }
+        .step-box.active {
+            border: 2px solid #222;
+            font-weight: 700;
+        }
+        .step-box.completed {
+            background-color: #54ad54;
+            color: white;
+            border-color: #54ad54;
+        }
+        .step-box.completed.active {
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #222;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- YUQORI NAVIGATSIYA PANELI (STEPIK HEADER) -->
+    <header class="stepik-dark text-white h-14 flex items-center justify-between px-4 shrink-0 z-30 shadow-md">
+        <div class="flex items-center space-x-6">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="switchView('catalog')">
+                <div class="w-8 h-8 stepik-green rounded flex items-center justify-center font-bold text-lg text-white">S</div>
+                <span class="font-bold text-xl tracking-tight">stepik <span class="text-xs font-normal text-green-400 border border-green-500 px-1.5 py-0.5 rounded ml-1">UZ</span></span>
+            </div>
+
+            <!-- Asosiy Menyular -->
+            <nav class="hidden md:flex space-x-5 text-sm font-medium text-gray-300">
+                <button onclick="switchView('catalog')" id="nav-catalog" class="hover:text-white transition py-1">Katalog</button>
+                <button onclick="switchView('learning')" id="nav-learning" class="text-white border-b-2 border-green-500 py-1">Mening o'qishim</button>
+                <button onclick="switchView('studio')" id="nav-studio" class="hover:text-white transition py-1 flex items-center gap-1">
+                    <i class="fas fa-plus-circle text-green-400"></i> Dars yaratish (Studio)
+                </button>
+            </nav>
+        </div>
+
+        <!-- O'ng taraf: Qidiruv, Streak, Ballar va Profil -->
+        <div class="flex items-center space-x-4 text-sm">
+            <div class="relative hidden lg:block">
+                <input type="text" placeholder="Kurslarni qidirish..." class="bg-gray-800 text-gray-200 text-xs rounded-md pl-8 pr-3 py-1.5 w-56 focus:outline-none focus:ring-1 focus:ring-green-500">
+                <i class="fas fa-search absolute left-2.5 top-2 text-gray-400 text-xs"></i>
+            </div>
+
+            <!-- Streak (Kundalik faollik) -->
+            <div class="flex items-center space-x-1 bg-gray-800 px-2.5 py-1 rounded text-orange-400 font-semibold" title="Kundalik uzluksiz faollik">
+                <i class="fas fa-fire"></i>
+                <span id="user-streak">5 kun</span>
+            </div>
+
+            <!-- Ballar (XP) -->
+            <div class="flex items-center space-x-1 bg-gray-800 px-2.5 py-1 rounded text-green-400 font-semibold" title="To'plangan ballar">
+                <i class="fas fa-bolt"></i>
+                <span id="user-score">120</span>
+            </div>
+
+            <!-- Profil -->
+            <div class="flex items-center space-x-2 cursor-pointer pl-2 border-l border-gray-700">
+                <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center font-bold text-xs">FA</div>
+                <span class="hidden sm:inline text-xs font-medium text-gray-200">Abdulloh</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ASOSIY KONTENT QISMI -->
+    <div id="view-learning" class="flex-1 flex overflow-hidden">
+        
+        <!-- CHAP SIDEBAR: KURS MUNDARIJASI (MODULLAR VA DARSLAR) -->
+        <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex flex-col shrink-0 transition-all duration-200">
+            <!-- Kurs sarlavhasi -->
+            <div class="p-4 border-b border-gray-200 bg-gray-50">
+                <div class="text-xs text-gray-500 uppercase font-semibold tracking-wider mb-1">Faol Kurs</div>
+                <h2 id="sidebar-course-title" class="font-bold text-gray-800 text-sm leading-snug">Python dasturlash asoslari: Noldan professionalgacha</h2>
+                
+                <!-- Progress Bar -->
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs text-gray-600 mb-1">
+                        <span>O'zlashtirish</span>
+                        <span id="course-progress-text" class="font-semibold">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                        <div id="course-progress-bar" class="stepik-green h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modullar va darslar ro'yxati -->
+            <div id="syllabus-container" class="flex-1 overflow-y-auto p-2 space-y-2">
+                <!-- JS orqali dinamik to'ldiriladi -->
+            </div>
+
+            <!-- Sertifikat tugmasi -->
+            <div class="p-3 border-t border-gray-200 bg-gray-50">
+                <button onclick="openCertificateModal()" class="w-full py-2 px-3 bg-white border border-gray-300 hover:border-green-500 text-gray-700 rounded text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
+                    <i class="fas fa-award text-yellow-500 text-sm"></i> Sertifikatni ko'rish
+                </button>
+            </div>
+        </aside>
+
+        <!-- O'NG ASOSIY OYNA: QADAMLAR (STEPS) VA MASHQLAR -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-white">
+            
+            <!-- Qadamlar navigatsiya paneli (Stepik Top Stepper) -->
+            <div class="border-b border-gray-200 px-6 py-3 bg-gray-50 flex flex-wrap items-center justify-between gap-4 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-800 p-1.5 rounded hover:bg-gray-200" title="Menyuni yashirish/ochish">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div id="current-module-name" class="text-xs text-gray-500">1-modul. Kirish</div>
+                        <h1 id="current-lesson-title" class="font-bold text-gray-800 text-base">1.1 Birinchi dastur va o'zgaruvchilar</h1>
+                    </div>
+                </div>
+
+                <!-- Stepik kvadratchalari -->
+                <div id="steps-bar" class="flex items-center space-x-1.5">
+                    <!-- JS orqali to'ldiriladi -->
+                </div>
+            </div>
+
+            <!-- Dars kontenti va Mashq maydoni -->
+            <div class="flex-1 overflow-y-auto px-6 py-6 md:px-12 lg:px-20">
+                <div class="max-w-4xl mx-auto">
+                    
+                    <!-- Qadam turi va ball belgisi -->
+                    <div class="flex items-center justify-between mb-4">
+                        <span id="step-type-badge" class="text-xs font-semibold px-2.5 py-1 rounded bg-gray-100 text-gray-600">
+                            Nazariya
+                        </span>
+                        <span id="step-points-badge" class="text-xs font-medium text-gray-500">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i> 10 ball
+                        </span>
+                    </div>
+
+                    <!-- Qadam asosiy matni / videosi -->
+                    <div id="step-content-area" class="prose max-w-none text-gray-800 leading-relaxed mb-8">
+                        <!-- Dinamik kontent -->
+                    </div>
+
+                    <!-- Interaktiv vazifa bloki (Test yoki Kod muharriri) -->
+                    <div id="step-interactive-area" class="mb-8">
+                        <!-- Dinamik vazifa -->
+                    </div>
+
+                    <!-- Oldingi / Keyingi qadam tugmalari -->
+                    <div class="flex items-center justify-between pt-6 border-t border-gray-200 mb-10">
+                        <button id="btn-prev-step" onclick="prevStep()" class="px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40">
+                            <i class="fas fa-arrow-left mr-2"></i> Oldingi qadam
+                        </button>
+                        <button id="btn-next-step" onclick="nextStep()" class="px-5 py-2 stepik-green text-white rounded text-sm font-medium shadow-sm transition">
+                            Keyingi qadam <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+
+                    <!-- STEPIK IZOHLAR VA YECHIMLAR BO'LIMI -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="flex space-x-6 border-b border-gray-200 mb-4">
+                            <button onclick="switchTab('comments')" id="tab-comments" class="pb-2 text-sm font-semibold border-b-2 border-green-600 text-gray-900">
+                                Izohlar (<span id="comments-count">2</span>)
+                            </button>
+                            <button onclick="switchTab('solutions')" id="tab-solutions" class="pb-2 text-sm font-semibold text-gray-500 hover:text-gray-800 flex items-center gap-1.5">
+                                <i class="fas fa-lock text-xs" id="solutions-lock-icon"></i> Yechimlar forumi
+                            </button>
+                        </div>
+
+                        <!-- Izohlar oynasi -->
+                        <div id="panel-comments">
+                            <div class="flex gap-3 mb-6">
+                                <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold shrink-0">FA</div>
+                                <div class="flex-1">
+                                    <textarea id="new-comment-input" rows="2" placeholder="Savol bering yoki fikringizni qoldiring..." class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
+                                    <div class="flex justify-end mt-2">
+                                        <button onclick="addComment()" class="px-4 py-1.5 stepik-green text-white text-xs font-semibold rounded">Izoh qoldirish</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="comments-list" class="space-y-4">
+                                <!-- Izohlar ro'yxati -->
+                            </div>
+                        </div>
+
+                        <!-- Yechimlar forumi (Faqat masala yechilgandan keyin ochiladi) -->
+                        <div id="panel-solutions" class="hidden">
+                            <div id="solutions-locked-msg" class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                                <i class="fas fa-lock text-2xl text-gray-400 mb-2"></i>
+                                <h4 class="font-semibold text-gray-800 text-sm">Yechimlar forumi yopiq</h4>
+                                <p class="text-xs text-gray-500 mt-1">Boshqa talabalarning yechimlarini ko'rish uchun avval ushbu masalani to'g'ri yechishingiz kerak.</p>
+                            </div>
+                            <div id="solutions-unlocked-content" class="hidden space-y-4">
+                                <div class="bg-green-50 border border-green-200 p-3 rounded text-xs text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i> Siz masalani to'g'ri yechdingiz! Endi boshqa talabalarning eng yaxshi yechimlarini ko'rishingiz mumkin.
+                                </div>
+                                <div class="border border-gray-200 rounded p-4">
+                                    <div class="flex justify-between text-xs text-gray-500 mb-2">
+                                        <span class="font-bold text-gray-700">Sardorbek_Dev</span>
+                                        <span>Eng optimal yechim • +45 ovoz</span>
+                                    </div>
+                                    <pre class="bg-gray-900 text-green-400 p-3 rounded text-xs code-font overflow-x-auto">a, b = map(int, input().split())
+print(a + b)</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- KATALOG KO'RINISHI (KURSLAR RO'YXATI) -->
+    <div id="view-catalog" class="hidden flex-1 overflow-y-auto p-8 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">O'zbek tilidagi interaktiv kurslar katalogi</h1>
+            <p class="text-sm text-gray-600 mb-8">Avtomatik tekshiriladigan amaliy masalalar bilan dasturlash va fanlarni o'rganing.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Kurs 1 -->
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                    <div class="h-32 bg-gradient-to-r from-green-600 to-emerald-700 p-5 text-white flex flex-col justify-between">
+                        <span class="text-xs uppercase tracking-wider bg-black/20 self-start px-2 py-0.5 rounded">Dasturlash</span>
+                        <h3 class="font-bold text-lg">Python dasturlash asoslari</h3>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <p class="text-xs text-gray-600 mb-4">O'zgaruvchilar, shart operatorlari, sikllar va funksiyalar. 100% avtomatik tekshiriluvchi masalalar.</p>
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                                <span><i class="fas fa-users mr-1"></i> 14,250 talaba</span>
+                                <span class="text-green-600 font-bold">Bepul</span>
+                            </div>
+                            <button onclick="switchView('learning')" class="w-full py-2 stepik-green text-white rounded text-xs font-semibold">O'qishni davom ettirish</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kurs 2 -->
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                    <div class="h-32 bg-gradient-to-r from-blue-600 to-indigo-700 p-5 text-white flex flex-col justify-between">
+                        <span class="text-xs uppercase tracking-wider bg-black/20 self-start px-2 py-0.5 rounded">Ma'lumotlar bazasi</span>
+                        <h3 class="font-bold text-lg">SQL va Relatsion Bazalar</h3>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <p class="text-xs text-gray-600 mb-4">SELECT, JOIN, GROUP BY va murakkab so'rovlarni real ma'lumotlar bazasida mashq qiling.</p>
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                                <span><i class="fas fa-users mr-1"></i> 8,910 talaba</span>
+                                <span class="text-green-600 font-bold">Bepul</span>
+                            </div>
+                            <button onclick="alert('Tez orada ushbu kurs ham faollashtiriladi! Hozircha Python kursida barcha funksiyalarni sinab ko\'ring.')" class="w-full py-2 border border-green-600 text-green-600 hover:bg-green-50 rounded text-xs font-semibold">Kursga yozilish</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kurs 3 -->
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                    <div class="h-32 bg-gradient-to-r from-gray-800 to-gray-900 p-5 text-white flex flex-col justify-between">
+                        <span class="text-xs uppercase tracking-wider bg-white/10 self-start px-2 py-0.5 rounded">Algoritmlar</span>
+                        <h3 class="font-bold text-lg">Algoritmlar va Ma'lumotlar Tuzilmasi</h3>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <p class="text-xs text-gray-600 mb-4">Graflar, dinamik dasturlash, saralash algoritmlari va vaqt murakkabligi tahlili.</p>
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                                <span><i class="fas fa-users mr-1"></i> 5,430 talaba</span>
+                                <span class="text-blue-600 font-bold">Sertifikatli</span>
+                            </div>
+                            <button onclick="switchView('learning')" class="w-full py-2 border border-green-600 text-green-600 hover:bg-green-50 rounded text-xs font-semibold">Ko'rish</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STUDIO KO'RINISHI (O'QITUVCHILAR UCHUN YANGI DARS / MASALA QO'SHISH) -->
+    <div id="view-studio" class="hidden flex-1 overflow-y-auto p-8 bg-gray-50">
+        <div class="max-w-3xl mx-auto bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">Stepik Studio — Yangi qadam (Step) qo'shish</h2>
+                    <p class="text-xs text-gray-500">O'zingizning nazariy darsingiz yoki avtomatik tekshiriladigan kodingizni kursga qo'shing.</p>
+                </div>
+                <span class="text-xs bg-green-100 text-green-800 px-2.5 py-1 rounded font-semibold">Muallif rejimi</span>
+            </div>
+
+            <div class="space-y-4 text-sm">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Qadam turi</label>
+                    <select id="studio-step-type" onchange="toggleStudioFields()" class="w-full border border-gray-300 rounded p-2">
+                        <option value="code">Dasturlash masalasi (Avtomatik test tekshiruvi)</option>
+                        <option value="quiz">Test savoli (Bir javobli)</option>
+                        <option value="theory">Nazariy matn / Ma'ruza</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Qadam sarlavhasi</label>
+                    <input type="text" id="studio-title" placeholder="Masalan: Kvadrat yuzini topish" class="w-full border border-gray-300 rounded p-2">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Shart yoki nazariya matni</label>
+                    <textarea id="studio-content" rows="4" placeholder="Masala shartini batafsil yozing..." class="w-full border border-gray-300 rounded p-2"></textarea>
+                </div>
+
+                <!-- Kod masalasi uchun qo'shimcha maydonlar -->
+                <div id="studio-code-fields" class="space-y-4 bg-gray-50 p-4 rounded border border-gray-200">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Boshlang'ich kod shabloni</label>
+                        <textarea id="studio-starter-code" rows="3" class="w-full border border-gray-300 rounded p-2 code-font text-xs">a = int(input())
+# Kodingizni shu yerga yozing
+</textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Test kirish ma'lumoti (Input)</label>
+                            <input type="text" id="studio-test-input" placeholder="Masalan: 5" class="w-full border border-gray-300 rounded p-2 code-font text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Kutilayotgan natija (Output)</label>
+                            <input type="text" id="studio-test-output" placeholder="Masalan: 25" class="w-full border border-gray-300 rounded p-2 code-font text-xs">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test savoli uchun maydonlar -->
+                <div id="studio-quiz-fields" class="hidden space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                    <label class="block font-semibold text-gray-700">Variantlar (To'g'ri javobni belgilang)</label>
+                    <input type="text" id="studio-opt-0" placeholder="1-variant" class="w-full border border-gray-300 rounded p-2 text-xs">
+                    <input type="text" id="studio-opt-1" placeholder="2-variant" class="w-full border border-gray-300 rounded p-2 text-xs">
+                    <input type="text" id="studio-opt-2" placeholder="3-variant" class="w-full border border-gray-300 rounded p-2 text-xs">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600">To'g'ri variant raqami (1, 2 yoki 3):</label>
+                        <input type="number" id="studio-correct-opt" min="1" max="3" value="1" class="w-20 border border-gray-300 rounded p-1 ml-2">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button onclick="switchView('learning')" class="px-4 py-2 border border-gray-300 rounded text-gray-700 font-medium">Bekor qilish</button>
+                    <button onclick="publishNewStep()" class="px-5 py-2 stepik-green text-white rounded font-semibold">Kursga qo'shish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERTIFIKAT MODALI -->
+    <div id="certificate-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-xl w-full p-8 text-center relative shadow-2xl border-4 border-double border-green-600">
+            <button onclick="closeCertificateModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+            <div class="w-12 h-12 stepik-green text-white rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">S</div>
+            <div class="text-xs uppercase tracking-widest text-green-700 font-bold mb-1">Stepik O'zbekiston Sertifikati</div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">MUVAFFAQIYAT SERTIFIKATI</h3>
+            <p class="text-xs text-gray-500 mb-2">Ushbu sertifikat tasdiqlaydiki,</p>
+            <div class="text-xl font-bold text-gray-800 border-b border-gray-300 inline-block px-8 pb-1 mb-4">Fattoxov Abdulloh</div>
+            <p class="text-xs text-gray-600 mb-6">
+                <strong>"Python dasturlash asoslari: Noldan professionalgacha"</strong> kursining amaliy mashg'ulotlarini muvaffaqiyatli bajardi.
+            </p>
+            <div class="flex justify-between items-center text-xs text-gray-500 pt-4 border-t border-gray-200">
+                <span>ID: UZ-STP-2026-8841</span>
+                <span>Joriy natija: <strong id="cert-progress-val" class="text-green-600">0%</strong></span>
+                <span>Sana: 2026-yil</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT: STEPIK MANTIQI VA AVTOMATIK KOD TEKSHIRUVCHI ENGINE -->
+    <script>
+        // 1. KURS MA'LUMOTLAR BAZASI (To'liq O'zbek tilida)
+        const courseData = {
+            title: "Python dasturlash asoslari: Noldan professionalgacha",
+            modules: [
+                {
+                    id: 1,
+                    title: "1-modul. Kirish va asosiy tushunchalar",
+                    lessons: [
+                        {
+                            id: 101,
+                            title: "1.1 Birinchi dastur va ma'lumotlarni chiqarish",
+                            steps: [
+                                {
+                                    id: 1,
+                                    type: "theory",
+                                    title: "Python tiliga xush kelibsiz!",
+                                    points: 5,
+                                    completed: true,
+                                    content: `
+                                        <h2 class="text-xl font-bold mb-3">Python dasturlash tili haqida</h2>
+                                        <p class="mb-3"><strong>Python</strong> — o'rganishga oson, lekin sun'iy intellekt, veb-dasturlash va ma'lumotlar tahlilida eng qudratli zamonaviy dasturlash tili.</p>
+                                        <div class="bg-gray-900 text-gray-100 p-4 rounded-md code-font text-sm mb-4">
+                                            <span class="text-blue-400">print</span>(<span class="text-green-400">"Salom, Stepik O'zbekiston!"</span>)
+                                        </div>
+                                        <p class="mb-2">Yuqoridagi kod ekranga matn chiqarish uchun <code>print()</code> funksiyasidan foydalanadi.</p>
+                                        <div class="bg-blue-50 border-l-4 border-blue-500 p-3 text-sm text-blue-900">
+                                            <strong>Eslatma:</strong> Matnlar har doim qo'shtirnoq (<code>" "</code>) yoki birtirnoq (<code>' '</code>) ichida yoziladi.
+                                        </div>
+                                    `
+                                },
+                                {
+                                    id: 2,
+                                    type: "quiz",
+                                    title: "Nazariy bilimlarni tekshirish",
+                                    points: 10,
+                                    completed: false,
+                                    question: "Python dasturlash tilida ekranga ma'lumot chiqarish uchun qaysi funksiya ishlatiladi?",
+                                    options: [
+                                        "echo()",
+                                        "console.log()",
+                                        "print()",
+                                        "write()"
+                                    ],
+                                    correctIndex: 2
+                                },
+                                {
+                                    id: 3,
+                                    type: "code",
+                                    title: "Amaliy masala: Salomlashish dasturi",
+                                    points: 15,
+                                    completed: false,
+                                    content: `
+                                        <h3 class="text-lg font-bold mb-2">Masala sharti</h3>
+                                        <p class="mb-3">Ekranga aynan <code>Salom, Dunyo!</code> yozuvini chiqaruvchi dastur tuzing.</p>
+                                        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded border border-gray-200 text-xs code-font">
+                                            <div>
+                                                <div class="text-gray-500 font-sans font-semibold mb-1">Kiruvchi ma'lumot:</div>
+                                                <div>(yo'q)</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 font-sans font-semibold mb-1">Chiquvchi ma'lumot:</div>
+                                                <div class="font-bold">Salom, Dunyo!</div>
+                                            </div>
+                                        </div>
+                                    `,
+                                    starterCode: `# Kodingizni shu yerga yozing\nprint("")`,
+                                    tests: [
+                                        { input: "", expected: "Salom, Dunyo!" }
+                                    ]
+                                },
+                                {
+                                    id: 4,
+                                    type: "code",
+                                    title: "Amaliy masala: Ikki son yig'indisi",
+                                    points: 20,
+                                    completed: false,
+                                    content: `
+                                        <h3 class="text-lg font-bold mb-2">Ikki butun sonni qo'shish</h3>
+                                        <p class="mb-3">Foydalanuvchi tomonidan kiritilgan ikkita butun sonning (<code>a</code> va <code>b</code>) yig'indisini hisoblab ekranga chiqaring.</p>
+                                        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded border border-gray-200 text-xs code-font">
+                                            <div>
+                                                <div class="text-gray-500 font-sans font-semibold mb-1">Test 1 Kirish:</div>
+                                                <div>4<br>7</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 font-sans font-semibold mb-1">Test 1 Chiqish:</div>
+                                                <div class="font-bold">11</div>
+                                            </div>
+                                        </div>
+                                    `,
+                                    starterCode: `a = int(input())\nb = int(input())\n# Yig'indini hisoblang va print() bilan chiqaring\n`,
+                                    tests: [
+                                        { input: "4\n7", expected: "11" },
+                                        { input: "10\n25", expected: "35" },
+                                        { input: "-5\n5", expected: "0" }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 102,
+                            title: "1.2 Shart operatorlari (if-else)",
+                            steps: [
+                                {
+                                    id: 5,
+                                    type: "code",
+                                    title: "Juft yoki toq son",
+                                    points: 20,
+                                    completed: false,
+                                    content: `
+                                        <h3 class="text-lg font-bold mb-2">Sonning juftligini aniqlash</h3>
+                                        <p class="mb-3">Kiritilgan <code>n</code> butun soni juft bo'lsa <code>Juft</code>, aks holda <code>Toq</code> so'zini ekranga chiqaring.</p>
+                                    `,
+                                    starterCode: `n = int(input())\nif n % 2 == 0:\n    print("Juft")\nelse:\n    # davom ettiring\n`,
+                                    tests: [
+                                        { input: "8", expected: "Juft" },
+                                        { input: "7", expected: "Toq" }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Holat o'zgaruvchilari (State)
+        let currentLessonId = 101;
+        let currentStepIndex = 0;
+        let userScore = 120;
+        let commentsData = [
+            { author: "Jasurbek_T", time: "2 soat oldin", text: "Juda tushunarli tushuntirilgan! Kod tekshiruvchi tizim bir zumda ishlayapti." },
+            { author: "Madina_Alieva", time: "Kecha", text: "int(input()) ishlatishni unutmaslik kerak ekan, aks holda matn sifatida qo'shib yuboradi." }
+        ];
+
+        // Dastur yuklanganda ishga tushirish
+        window.onload = () => {
+            renderSyllabus();
+            loadLesson(currentLessonId, 0);
+            renderComments();
+        };
+
+        // 2. CHAP SIDEBAR MUNDARIJASINI CHIZISH
+        function renderSyllabus() {
+            const container = document.getElementById('syllabus-container');
+            container.innerHTML = '';
+
+            let totalSteps = 0;
+            let completedSteps = 0;
+
+            courseData.modules.forEach(mod => {
+                const modDiv = document.createElement('div');
+                modDiv.className = 'mb-3';
+                modDiv.innerHTML = `<div class="text-xs font-bold text-gray-500 px-2 py-1.5 uppercase tracking-wide">${mod.title}</div>`;
+
+                mod.lessons.forEach(lesson => {
+                    totalSteps += lesson.steps.length;
+                    const lessonCompletedCount = lesson.steps.filter(s => s.completed).length;
+                    completedSteps += lessonCompletedCount;
+
+                    const isSelected = lesson.id === currentLessonId;
+                    const lessonBtn = document.createElement('div');
+                    lessonBtn.className = `px-3 py-2.5 rounded-md text-xs cursor-pointer flex items-center justify-between transition ${
+                        isSelected ? 'bg-green-50 text-green-800 font-bold border-l-4 border-green-600' : 'text-gray-700 hover:bg-gray-100'
+                    }`;
+                    lessonBtn.onclick = () => loadLesson(lesson.id, 0);
+
+                    lessonBtn.innerHTML = `
+                        <span class="truncate pr-2">${lesson.title}</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded ${lessonCompletedCount === lesson.steps.length ? 'bg-green-100 text-green-700 font-bold' : 'bg-gray-100 text-gray-500'}">
+                            ${lessonCompletedCount}/${lesson.steps.length}
+                        </span>
+                    `;
+                    modDiv.appendChild(lessonBtn);
+                });
+
+                container.appendChild(modDiv);
+            });
+
+            // Umumiy progressni yangilash
+            const pct = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+            document.getElementById('course-progress-text').innerText = `${pct}%`;
+            document.getElementById('course-progress-bar').style.width = `${pct}%`;
+            document.getElementById('cert-progress-val').innerText = `${pct}%`;
+        }
+
+        // 3. DARS VA QADAMNI YUKLASH
+        function getCurrentLesson() {
+            for (const mod of courseData.modules) {
+                const found = mod.lessons.find(l => l.id === currentLessonId);
+                if (found) return { module: mod, lesson: found };
+            }
+            return null;
+        }
+
+        function loadLesson(lessonId, stepIdx) {
+            currentLessonId = lessonId;
+            currentStepIndex = stepIdx;
+            const data = getCurrentLesson();
+            if (!data) return;
+
+            document.getElementById('current-module-name').innerText = data.module.title;
+            document.getElementById('current-lesson-title').innerText = data.lesson.title;
+
+            renderSyllabus();
+            renderStepsBar(data.lesson.steps);
+            renderCurrentStep(data.lesson.steps[currentStepIndex]);
+        }
+
+        function renderStepsBar(steps) {
+            const bar = document.getElementById('steps-bar');
+            bar.innerHTML = '';
+
+            steps.forEach((step, idx) => {
+                const box = document.createElement('div');
+                box.className = `step-box ${idx === currentStepIndex ? 'active' : ''} ${step.completed ? 'completed' : ''}`;
+                box.title = step.title;
+                box.onclick = () => {
+                    currentStepIndex = idx;
+                    renderStepsBar(steps);
+                    renderCurrentStep(steps[idx]);
+                };
+
+                // Qadam turi bo'yicha belgi
+                if (step.type === 'code') {
+                    box.innerHTML = `<i class="fas fa-code text-xs"></i>`;
+                } else if (step.type === 'quiz') {
+                    box.innerHTML = `<i class="fas fa-question text-xs"></i>`;
+                } else {
+                    box.innerText = idx + 1;
+                }
+                bar.appendChild(box);
+            });
+        }
+
+        function renderCurrentStep(step) {
+            const contentArea = document.getElementById('step-content-area');
+            const interactiveArea = document.getElementById('step-interactive-area');
+            const typeBadge = document.getElementById('step-type-badge');
+            const pointsBadge = document.getElementById('step-points-badge');
+
+            pointsBadge.innerHTML = `<i class="fas fa-star text-yellow-400 mr-1"></i> ${step.points} ball`;
+            interactiveArea.innerHTML = '';
+
+            // Yechimlar forumi qulfini yangilash
+            updateSolutionsLock(step.completed);
+
+            if (step.type === 'theory') {
+                typeBadge.innerText = "Nazariya";
+                typeBadge.className = "text-xs font-semibold px-2.5 py-1 rounded bg-blue-50 text-blue-700";
+                contentArea.innerHTML = step.content;
+                
+                // Nazariya o'qilganda avtomatik bajarildi deb belgilash
+                if (!step.completed) {
+                    step.completed = true;
+                    renderSyllabus();
+                    renderStepsBar(getCurrentLesson().lesson.steps);
+                }
+            } 
+            else if (step.type === 'quiz') {
+                typeBadge.innerText = "Test savoli";
+                typeBadge.className = "text-xs font-semibold px-2.5 py-1 rounded bg-purple-50 text-purple-700";
+                contentArea.innerHTML = `<h3 class="text-lg font-bold mb-2">${step.title}</h3><p class="text-base">${step.question}</p>`;
+
+                let optionsHtml = `<div class="space-y-2.5 bg-gray-50 p-5 rounded-lg border border-gray-200">`;
+                step.options.forEach((opt, i) => {
+                    optionsHtml += `
+                        <label class="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded cursor-pointer hover:border-green-500 transition">
+                            <input type="radio" name="quiz-opt" value="${i}" class="text-green-600 focus:ring-green-500">
+                            <span class="text-sm font-medium text-gray-800 code-font">${opt}</span>
+                        </label>
+                    `;
+                });
+                optionsHtml += `
+                    <div class="pt-3 flex items-center justify-between">
+                        <button onclick="checkQuizAnswer()" class="px-5 py-2 stepik-green text-white text-sm font-semibold rounded shadow-sm">Yuborish</button>
+                        <div id="quiz-feedback" class="text-sm font-semibold"></div>
+                    </div>
+                </div>`;
+                interactiveArea.innerHTML = optionsHtml;
+            } 
+            else if (step.type === 'code') {
+                typeBadge.innerText = "Dasturlash masalasi";
+                typeBadge.className = "text-xs font-semibold px-2.5 py-1 rounded bg-green-50 text-green-700";
+                contentArea.innerHTML = step.content;
+
+                interactiveArea.innerHTML = `
+                    <div class="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                        <!-- Kod muharriri sarlavhasi -->
+                        <div class="bg-gray-800 text-gray-300 px-4 py-2 flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-3">
+                                <span class="font-semibold text-white"><i class="fab fa-python text-yellow-400 mr-1.5"></i> Python 3.11</span>
+                                <span class="text-gray-400">Vaqt chegarasi: 2 soniya</span>
+                            </div>
+                            <button onclick="resetCode()" class="text-gray-400 hover:text-white transition" title="Kodni asl holiga qaytarish">
+                                <i class="fas fa-undo mr-1"></i> Qayta tiklash
+                            </button>
+                        </div>
+
+                        <!-- Kod yozish maydoni -->
+                        <textarea id="code-editor" rows="8" spellcheck="false" class="w-full bg-[#1e1e1e] text-[#d4d4d4] p-4 code-font text-sm focus:outline-none leading-relaxed">${step.starterCode}</textarea>
+
+                        <!-- Boshqaruv tugmalari -->
+                        <div class="bg-gray-100 px-4 py-3 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                            <button onclick="runCustomTest()" class="px-3.5 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold">
+                                <i class="fas fa-play text-gray-500 mr-1.5"></i> Kodni sinab ko'rish
+                            </button>
+                            <button onclick="submitCodeSolution()" class="px-5 py-2 stepik-green text-white rounded text-xs font-bold shadow-sm flex items-center">
+                                <i class="fas fa-check mr-1.5"></i> Yechimni yuborish
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tekshiruv natijalari konsoli -->
+                    <div id="grader-output" class="hidden mt-4 rounded-lg border p-4 text-sm"></div>
+                `;
+            }
+
+            // Oldingi/Keyingi tugmalar holati
+            const totalSteps = getCurrentLesson().lesson.steps.length;
+            document.getElementById('btn-prev-step').disabled = currentStepIndex === 0;
+            document.getElementById('btn-next-step').disabled = currentStepIndex === totalSteps - 1;
+        }
+
+        // 4. TEST JAVOBINI TEKSHIRISH
+        function checkQuizAnswer() {
+            const selected = document.querySelector('input[name="quiz-opt"]:checked');
+            const feedback = document.getElementById('quiz-feedback');
+            if (!selected) {
+                feedback.innerHTML = `<span class="text-orange-600">Iltimos, variantlardan birini tanlang!</span>`;
+                return;
+            }
+
+            const step = getCurrentLesson().lesson.steps[currentStepIndex];
+            if (parseInt(selected.value) === step.correctIndex) {
+                feedback.innerHTML = `<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i> To'g'ri javob! +${step.points} ball</span>`;
+                markStepCompleted(step);
+            } else {
+                feedback.innerHTML = `<span class="text-red-600"><i class="fas fa-times-circle mr-1"></i> Noto'g'ri. Qaytadan urinib ko'ring.</span>`;
+            }
+        }
+
+        // 5. PYTHON KODNI AVTOMATIK TEKSHIRISH ENGINE (SIMULYATOR VA INTERPRETER)
+        function executePythonLogic(code, inputStr) {
+            // Soddalashtirilgan brauzer ichidagi Python -> JS translyatori (print, input, int, arifmetika, if/else)
+            const inputs = inputStr ? inputStr.split('\n') : [];
+            let inputIdx = 0;
+            let outputs = [];
+
+            const mockInput = () => {
+                return inputIdx < inputs.length ? inputs[inputIdx++] : "";
+            };
+            const mockPrint = (...args) => {
+                outputs.push(args.join(' '));
+            };
+
+            try {
+                // Python sintaksisini JS ga moslashtirish
+                let lines = code.split('\n');
+                let jsCode = "";
+                let indentLevel = 0;
+
+                for (let rawLine of lines) {
+                    let trimmed = rawLine.trim();
+                    if (!trimmed || trimmed.startsWith('#')) continue;
+
+                    let currentIndent = rawLine.search(/\S/);
+                    while (currentIndent < indentLevel) {
+                        jsCode += "}\n";
+                        indentLevel -= 4;
+                    }
+
+                    // Python kalit so'zlarini o'girish
+                    let line = trimmed
+                        .replace(/int\(input\(\)\)/g, 'parseInt(mockInput())')
+                        .replace(/float\(input\(\)\)/g, 'parseFloat(mockInput())')
+                        .replace(/input\(\)/g, 'mockInput()')
+                        .replace(/^print\((.*)\)$/, 'mockPrint($1)');
+
+                    if (line.startsWith('if ') && line.endsWith(':')) {
+                        let cond = line.slice(3, -1).replace(/==/g, '===').replace(/\band\b/g, '&&').replace(/\bor\b/g, '||');
+                        jsCode += `if (${cond}) {\n`;
+                        indentLevel += 4;
+                    } else if (line.startsWith('elif ') && line.endsWith(':')) {
+                        let cond = line.slice(5, -1).replace(/==/g, '===');
+                        jsCode += `} else if (${cond}) {\n`;
+                        indentLevel += 4;
+                    } else if (line === 'else:') {
+                        jsCode += `} else {\n`;
+                        indentLevel += 4;
+                    } else {
+                        jsCode += `var ${line};\n`.replace(/^var (mockPrint|if|else|\})/, '$1');
+                    }
+                }
+                while (indentLevel > 0) {
+                    jsCode += "}\n";
+                    indentLevel -= 4;
+                }
+
+                const runner = new Function('mockInput', 'mockPrint', jsCode);
+                runner(mockInput, mockPrint);
+                return { success: true, output: outputs.join('\n').trim() };
+            } catch (err) {
+                return { success: false, error: "Sintaksis yoki bajarish xatosi: " + err.message };
+            }
+        }
+
+        function runCustomTest() {
+            const code = document.getElementById('code-editor').value;
+            const step = getCurrentLesson().lesson.steps[currentStepIndex];
+            const firstTestInput = step.tests[0] ? step.tests[0].input : "";
+            const res = executePythonLogic(code, firstTestInput);
+
+            const outDiv = document.getElementById('grader-output');
+            outDiv.className = "mt-4 rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm";
+            outDiv.classList.remove('hidden');
+
+            if (res.success) {
+                outDiv.innerHTML = `
+                    <div class="font-bold text-gray-700 mb-1">Sinov natijasi (1-test ma'lumoti bilan):</div>
+                    <pre class="bg-gray-900 text-gray-100 p-2.5 rounded text-xs code-font">${res.output || "(bo'sh natija)"}</pre>
+                `;
+            } else {
+                outDiv.innerHTML = `<div class="text-red-600 font-semibold">${res.error}</div>`;
+            }
+        }
+
+        function submitCodeSolution() {
+            const code = document.getElementById('code-editor').value;
+            const step = getCurrentLesson().lesson.steps[currentStepIndex];
+            const outDiv = document.getElementById('grader-output');
+            outDiv.classList.remove('hidden');
+
+            // Barcha yashirin va ochiq testlardan o'tkazish
+            for (let i = 0; i < step.tests.length; i++) {
+                const t = step.tests[i];
+                const res = executePythonLogic(code, t.input);
+
+                if (!res.success) {
+                    outDiv.className = "mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800";
+                    outDiv.innerHTML = `<strong><i class="fas fa-exclamation-triangle mr-1"></i> Kompilyatsiya xatosi:</strong><br>${res.error}`;
+                    return;
+                }
+
+                if (res.output !== t.expected.trim()) {
+                    outDiv.className = "mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800";
+                    outDiv.innerHTML = `
+                        <div class="font-bold mb-1"><i class="fas fa-times-circle mr-1"></i> #${i + 1}-testdan o'ta olmadi</div>
+                        <div class="text-xs space-y-1 code-font mt-2">
+                            <div><strong>Kirish:</strong> ${t.input.replace(/\n/g, ' ') || "(bo'sh)"}</div>
+                            <div><strong>Sizning natijangiz:</strong> <span class="text-red-600">${res.output || "(bo'sh)"}</span></div>
+                            <div><strong>Kutilgan natija:</strong> <span class="text-green-700">${t.expected}</span></div>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
+            // Barcha testlardan o'tsa
+            outDiv.className = "mt-4 rounded-lg border border-green-300 bg-green-50 p-4 text-sm text-green-900";
+            outDiv.innerHTML = `
+                <div class="font-bold text-base flex items-center">
+                    <i class="fas fa-check-circle text-green-600 text-xl mr-2"></i>
+                    Ajoyib! Barcha (${step.tests.length}/${step.tests.length}) testlardan muvaffaqiyatli o'tdi!
+                </div>
+                <p class="text-xs text-green-700 mt-1">Sizga +${step.points} ball qo'shildi va "Yechimlar forumi" ochildi.</p>
+            `;
+            markStepCompleted(step);
+        }
+
+        function resetCode() {
+            const step = getCurrentLesson().lesson.steps[currentStepIndex];
+            document.getElementById('code-editor').value = step.starterCode;
+            document.getElementById('grader-output').classList.add('hidden');
+        }
+
+        function markStepCompleted(step) {
+            if (!step.completed) {
+                step.completed = true;
+                userScore += step.points;
+                document.getElementById('user-score').innerText = userScore;
+            }
+            updateSolutionsLock(true);
+            renderSyllabus();
+            renderStepsBar(getCurrentLesson().lesson.steps);
+        }
+
+        // 6. NAVIGATSIYA VA INTERFEYS FUNKSIYALARI
+        function nextStep() {
+            const steps = getCurrentLesson().lesson.steps;
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                renderStepsBar(steps);
+                renderCurrentStep(steps[currentStepIndex]);
+            }
+        }
+
+        function prevStep() {
+            const steps = getCurrentLesson().lesson.steps;
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                renderStepsBar(steps);
+                renderCurrentStep(steps[currentStepIndex]);
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        }
+
+        function switchView(viewName) {
+            ['learning', 'catalog', 'studio'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${v}`);
+                if (navBtn) navBtn.classList.remove('text-white', 'border-b-2', 'border-green-500');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${viewName}`);
+            if (activeNav) activeNav.classList.add('text-white', 'border-b-2', 'border-green-500');
+        }
+
+        // Izohlar va Yechimlar tablari
+        function switchTab(tab) {
+            if (tab === 'comments') {
+                document.getElementById('panel-comments').classList.remove('hidden');
+                document.getElementById('panel-solutions').classList.add('hidden');
+                document.getElementById('tab-comments').className = "pb-2 text-sm font-semibold border-b-2 border-green-600 text-gray-900";
+                document.getElementById('tab-solutions').className = "pb-2 text-sm font-semibold text-gray-500 hover:text-gray-800 flex items-center gap-1.5";
+            } else {
+                document.getElementById('panel-comments').classList.add('hidden');
+                document.getElementById('panel-solutions').classList.remove('hidden');
+                document.getElementById('tab-solutions').className = "pb-2 text-sm font-semibold border-b-2 border-green-600 text-gray-900 flex items-center gap-1.5";
+                document.getElementById('tab-comments').className = "pb-2 text-sm font-semibold text-gray-500 hover:text-gray-800";
+            }
+        }
+
+        function updateSolutionsLock(isUnlocked) {
+            const lockIcon = document.getElementById('solutions-lock-icon');
+            const lockedMsg = document.getElementById('solutions-locked-msg');
+            const unlockedContent = document.getElementById('solutions-unlocked-content');
+
+            if (isUnlocked) {
+                lockIcon.className = "fas fa-unlock text-green-600 text-xs";
+                lockedMsg.classList.add('hidden');
+                unlockedContent.classList.remove('hidden');
+            } else {
+                lockIcon.className = "fas fa-lock text-xs";
+                lockedMsg.classList.remove('hidden');
+                unlockedContent.classList.add('hidden');
+            }
+        }
+
+        function renderComments() {
+            const list = document.getElementById('comments-list');
+            document.getElementById('comments-count').innerText = commentsData.length;
+            list.innerHTML = commentsData.map(c => `
+                <div class="flex gap-3 text-sm border-b border-gray-100 pb-3">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-xs font-bold shrink-0">
+                        ${c.author.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-gray-800 text-xs">${c.author}</span>
+                            <span class="text-[11px] text-gray-400">${c.time}</span>
+                        </div>
+                        <p class="text-gray-700 text-xs mt-1 leading-relaxed">${c.text}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addComment() {
+            const input = document.getElementById('new-comment-input');
+            if (!input.value.trim()) return;
+            commentsData.unshift({
+                author: "Abdulloh",
+                time: "Hozirgina",
+                text: input.value.trim()
+            });
+            input.value = '';
+            renderComments();
+        }
+
+        // 7. STUDIO REJIMI (YANGI QADAM QO'SHISH)
+        function toggleStudioFields() {
+            const type = document.getElementById('studio-step-type').value;
+            document.getElementById('studio-code-fields').classList.toggle('hidden', type !== 'code');
+            document.getElementById('studio-quiz-fields').classList.toggle('hidden', type !== 'quiz');
+        }
+
+        function publishNewStep() {
+            const type = document.getElementById('studio-step-type').value;
+            const title = document.getElementById('studio-title').value.trim() || "Yangi dars qadami";
+            const content = document.getElementById('studio-content').value.trim() || "Dars matni";
+
+            const lesson = getCurrentLesson().lesson;
+            const newStep = {
+                id: Date.now(),
+                type: type,
+                title: title,
+                points: 20,
+                completed: false
+            };
+
+            if (type === 'code') {
+                newStep.content = `<h3 class="text-lg font-bold mb-2">${title}</h3><p class="mb-3">${content}</p>`;
+                newStep.starterCode = document.getElementById('studio-starter-code').value;
+                newStep.tests = [{
+                    input: document.getElementById('studio-test-input').value,
+                    expected: document.getElementById('studio-test-output').value
+                }];
+            } else if (type === 'quiz') {
+                newStep.question = content;
+                newStep.options = [
+                    document.getElementById('studio-opt-0').value || "1-variant",
+                    document.getElementById('studio-opt-1').value || "2-variant",
+                    document.getElementById('studio-opt-2').value || "3-variant"
+                ];
+                newStep.correctIndex = parseInt(document.getElementById('studio-correct-opt').value) - 1;
+            } else {
+                newStep.content = `<h2 class="text-xl font-bold mb-3">${title}</h2><p>${content}</p>`;
+            }
+
+            lesson.steps.push(newStep);
+            switchView('learning');
+            loadLesson(lesson.id, lesson.steps.length - 1);
+        }
+
+        // Sertifikat modali
+        function openCertificateModal() {
+            document.getElementById('certificate-modal').classList.remove('hidden');
+        }
+        function closeCertificateModal() {
+            document.getElementById('certificate-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
